@@ -37,6 +37,7 @@ func (h *UserHandler) HandlePostUser(c *fiber.Ctx) error {
 		return err
 	}
 	return c.JSON(insertedUser)
+
 }
 
 func (h *UserHandler) HandleGetUser(c *fiber.Ctx) error {
