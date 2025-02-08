@@ -10,7 +10,7 @@ import (
 )
 
 type HotelStore interface {
-	InsertHotel(context.Context, *types.Hotel) (types.Hotel, error)
+	InsertHotel(context.Context, *types.Hotel) (*types.Hotel, error)
 	Update(context.Context, bson.M, bson.M) error
 }
 
@@ -32,11 +32,11 @@ func (s *MongoHotelStore) Update(ctx context.Context, filter bson.M, update bson
 
 }
 
-func (s *MongoHotelStore) InsertHotel(ctx context.Context, hotel *types.Hotel) (types.Hotel, error) {
+func (s *MongoHotelStore) InsertHotel(ctx context.Context, hotel *types.Hotel) (*types.Hotel, error) {
 	resp, err := s.coll.InsertOne(ctx, hotel)
 	if err != nil {
-		return types.Hotel{}, err
+		return nil, err
 	}
 	hotel.ID = resp.InsertedID.(primitive.ObjectID)
-	return *hotel, nil
+	return hotel, nil
 }

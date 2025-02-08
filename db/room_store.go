@@ -10,7 +10,7 @@ import (
 )
 
 type RoomStore interface {
-	InsertRoom(context.Context, *types.Room) (types.Room, error)
+	InsertRoom(context.Context, *types.Room) (*types.Room, error)
 }
 
 type MongoRoomStore struct {
