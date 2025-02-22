@@ -29,11 +29,13 @@ func parseJWTToken(tokenStr string) error {
 			return nil, fmt.Errorf("unauthorized")
 		}
 		secret := os.Getenv("JWT")
+		fmt.Println("NEVER SHOW YOUR SECRET: ", secret)
 		return []byte(secret), nil
 	})
 
 	if err != nil {
-		return nil
+		fmt.Println("Failed to parse JWT token:", err)
+		return fmt.Errorf("unauthorized")
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
