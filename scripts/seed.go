@@ -24,7 +24,7 @@ func seedUser(fname, lname, email string) {
 		Email:     email,
 		FirstName: fname,
 		LastName:  lname,
-		Password:  "password123",
+		Password:  "TIMURONELOVEFOREVEREVERMYHUSBAND",
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -76,7 +76,7 @@ func main() {
 	seedHotel("Bellucia", "France", 3)
 	seedHotel("The cozy hotel", "The Netherlands", 4)
 	seedHotel("Dont die in your sleep", "London", 1)
-	seedUser("james", "foo", "james@gmail.com")
+	seedUser("SELIMUSHKA", "KARATAEVA", "selimakarataeva@gmail.com")
 
 }
 
