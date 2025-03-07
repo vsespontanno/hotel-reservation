@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"hotel-reservation/db"
 	"hotel-reservation/types"
+	"net/http"
 	"os"
 	"time"
 
@@ -34,6 +35,18 @@ type AuthRespone struct {
 	Token string      `json:"token"`
 }
 
+type genericResp struct {
+	Type string `json:"type"`
+	Msg  string `json:"msg"`
+}
+
+func invalidCredentials(c *fiber.Ctx) error {
+	return c.Status(http.StatusBadRequest).JSON(genericResp{
+		Type: "error",
+		Msg:  "invalid credentials",
+	})
+}
+
 //handle should only do:
 // - serialization of the incoming request (JSON)
 // - do some data fetching from db
@@ -49,13 +62,13 @@ func (h *AuthHandler) HandleAuthenticate(c *fiber.Ctx) error {
 	user, err := h.userStore.GetUserByEmail(c.Context(), params.Email)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return fmt.Errorf("invalid credentials")
+			return invalidCredentials(c)
 		} else {
 			return err
 		}
 	}
 	if !types.IsValidPassword(user.EncryptedPassword, params.Password) {
-		return fmt.Errorf("invalid credentials")
+		return invalidCredentials(c)
 	}
 
 	resp := AuthRespone{
