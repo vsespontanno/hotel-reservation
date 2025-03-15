@@ -3,10 +3,10 @@ package api
 import (
 	"fmt"
 	"hotel-reservation/db"
-	"hotel-reservation/types"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type BookingHandler struct {
@@ -19,7 +19,34 @@ func NewBookingHandler(store *db.Store) *BookingHandler {
 	}
 }
 
-// TODO: this needs to be admin authorized
+func (h *BookingHandler) HandleCancelBooking(c *fiber.Ctx) error {
+	id := c.Params("id")
+	booking, err := h.store.Booking.GetBookingByID(c.Context(), id)
+	if err != nil {
+		return err
+	}
+	user, err := getAuthUser(c)
+	if err != nil {
+		return err
+	}
+
+	if booking.UserID != user.ID {
+		return c.Status(http.StatusUnauthorized).JSON(genericResp{
+			Type: "error",
+			Msg:  "unauthorized",
+		})
+	}
+	return nil
+
+	if err := h.store.Booking.UpdateBooking(c.Context(), id, bson.M{"cancelled": true}); err != nil {
+		return err
+	}
+	return c.JSON(genericResp{
+		Type: "success",
+		Msg:  "booking cancelled",
+	})
+}
+
 func (h *BookingHandler) HandleGetBookings(c *fiber.Ctx) error {
 	bookings, err := h.store.Booking.GetBookings(c.Context(), nil)
 	if err != nil {
@@ -36,9 +63,9 @@ func (h *BookingHandler) HandleGetBooking(c *fiber.Ctx) error {
 		return fmt.Errorf("this room is not booked")
 	}
 
-	user, ok := c.Context().UserValue("user").(*types.User)
-	if !ok {
-		return fmt.Errorf("internal server error")
+	user, err := getAuthUser(c)
+	if err != nil {
+		return err
 	}
 
 	if booking.UserID != user.ID {
