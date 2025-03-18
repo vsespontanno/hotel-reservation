@@ -1,5 +1,4 @@
-# Hotel reservation backenmd
-
+# Hotel reservation backend
 ## Project outline
 - Users -> book room from a hotel
 - Admins -> going to check reservations/bookings
