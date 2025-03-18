@@ -75,7 +75,7 @@ func main() {
 
 	//boking handlers
 	apiv1.Get("/booking/:id", bookingHandler.HandleGetBooking)
-	apiv1.Get("/booking/id/cancel", bookingHandler.HandleCancelBooking)
+	apiv1.Get("/booking/:id/cancel", bookingHandler.HandleCancelBooking)
 	//admin handlers
 	admin.Get("/booking", bookingHandler.HandleGetBookings)
 	app.Listen(*listenAddr)

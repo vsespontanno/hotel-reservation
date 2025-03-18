@@ -29,16 +29,14 @@ func (h *BookingHandler) HandleCancelBooking(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-
+	fmt.Println("---stage 1:")
 	if booking.UserID != user.ID {
 		return c.Status(http.StatusUnauthorized).JSON(genericResp{
 			Type: "error",
 			Msg:  "unauthorized",
 		})
 	}
-	return nil
-
-	if err := h.store.Booking.UpdateBooking(c.Context(), id, bson.M{"cancelled": true}); err != nil {
+	if err := h.store.Booking.UpdateBooking(c.Context(), c.Params("id"), bson.M{"cancelled": true}); err != nil {
 		return err
 	}
 	return c.JSON(genericResp{
