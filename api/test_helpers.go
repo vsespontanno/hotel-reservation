@@ -11,17 +11,17 @@ import (
 )
 
 const (
-	testdburi = "mongodb://localhost:27017"
-	dbname    = "hotel-reservation-test"
+	testdburi  = "mongodb://localhost:27017"
+	testDBname = "hotel-reservation-test"
 )
 
 type testdb struct {
 	client *mongo.Client
-	store  *db.Store
+	*db.Store
 }
 
 func (tdb *testdb) teardown(t *testing.T) {
-	if err := tdb.client.Database(dbname).Drop(context.TODO()); err != nil {
+	if err := tdb.client.Database(db.DBNAME).Drop(context.TODO()); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -30,9 +30,15 @@ func setup(t *testing.T) *testdb {
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	hotelStore := db.NewMongoHotelStore(client)
 	return &testdb{
-		UserStore: db.NewMongoUserStore(client),
+		client: client,
+		Store: &db.Store{
+			User:    db.NewMongoUserStore(client),
+			Hotel:   db.NewMongoHotelStore(client),
+			Room:    db.NewMongoRoomStore(client, hotelStore),
+			Booking: db.NewMongoBookingStore(client),
+		},
 	}
 
 }

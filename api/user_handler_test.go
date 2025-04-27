@@ -16,7 +16,7 @@ func TestPostUser(t *testing.T) {
 
 	app := fiber.New()
 	//TODO FIX
-	userHandler := NewUserHandler(tdb.UserStore)
+	userHandler := NewUserHandler(tdb.User)
 	app.Post("/", userHandler.HandlePostUser)
 
 	params := types.CreateUserParams{
