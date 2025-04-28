@@ -22,7 +22,7 @@ type BookRoomParams struct {
 func (p BookRoomParams) Validate() error {
 	now := time.Now()
 	if now.After(p.FromDate) || now.After(p.TillDate) {
-		return fmt.Errorf("Cannot book a room in the past")
+		return fmt.Errorf("cannot book a room in the past")
 	}
 	return nil
 }
