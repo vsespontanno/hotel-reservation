@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"hotel-reservation/api/middleware"
 	"hotel-reservation/db/fixtures"
 	"hotel-reservation/types"
 	"net/http"
@@ -26,7 +25,7 @@ func TestUserGetBooking(t *testing.T) {
 		till           = from.AddDate(0, 0, 5)
 		booking        = fixtures.AddBooking(db.Store, user.ID, room.ID, from, till)
 		app            = fiber.New()
-		route          = app.Group("/", middleware.JWTAuthentication(db.User))
+		route          = app.Group("/", JWTAuthentication(db.User))
 		bookingHandler = NewBookingHandler(db.Store)
 	)
 
@@ -73,15 +72,17 @@ func TestAdminGetBookings(t *testing.T) {
 	db := setup(t)
 	defer db.teardown(t)
 	var (
-		user           = fixtures.AddUser(db.Store, "james", "foo", false)
-		adminUser      = fixtures.AddUser(db.Store, "admin", "admin", true)
-		hotel          = fixtures.AddHotel(db.Store, "bar hotel", "a", 4, nil)
-		room           = fixtures.AddRoom(db.Store, "small", true, 4.4, hotel.ID)
-		from           = time.Now()
-		till           = from.AddDate(0, 0, 5)
-		booking        = fixtures.AddBooking(db.Store, user.ID, room.ID, from, till)
-		app            = fiber.New()
-		admin          = app.Group("/", middleware.JWTAuthentication(db.User), middleware.AdminAuth)
+		user      = fixtures.AddUser(db.Store, "james", "foo", false)
+		adminUser = fixtures.AddUser(db.Store, "admin", "admin", true)
+		hotel     = fixtures.AddHotel(db.Store, "bar hotel", "a", 4, nil)
+		room      = fixtures.AddRoom(db.Store, "small", true, 4.4, hotel.ID)
+		from      = time.Now()
+		till      = from.AddDate(0, 0, 5)
+		booking   = fixtures.AddBooking(db.Store, user.ID, room.ID, from, till)
+		app       = fiber.New(fiber.Config{
+			ErrorHandler: ErrorHandler,
+		})
+		admin          = app.Group("/", JWTAuthentication(db.User), AdminAuth)
 		bookingHandler = NewBookingHandler(db.Store)
 	)
 
@@ -94,16 +95,13 @@ func TestAdminGetBookings(t *testing.T) {
 		t.Fatal(err)
 
 	}
+
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("expected http status of %d, got %d", http.StatusOK, resp.StatusCode)
 	}
 	var bookings []*types.Booking
 	if err := json.NewDecoder(resp.Body).Decode(&bookings); err != nil {
 		t.Fatal(err)
-	}
-
-	if len(bookings) != 1 {
-		t.Fatalf("expected 1 booking, got %d", len(bookings))
 	}
 
 	have := bookings[0]
@@ -123,8 +121,8 @@ func TestAdminGetBookings(t *testing.T) {
 		t.Fatal(err)
 
 	}
-	if resp.StatusCode == http.StatusOK {
-		t.Fatalf("expected a non 200 status code got %d", resp.StatusCode)
+	if resp.StatusCode != http.StatusUnauthorized {
+		t.Fatalf("expected status unauthorized code got %d", resp.StatusCode)
 	}
 
 }

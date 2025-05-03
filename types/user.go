@@ -19,6 +19,8 @@ const (
 type UpdateUserParams struct {
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
 }
 
 func (p UpdateUserParams) ToBSON() bson.M {
@@ -28,6 +30,16 @@ func (p UpdateUserParams) ToBSON() bson.M {
 	}
 	if len(p.LastName) > 0 {
 		m["lastName"] = p.LastName
+	}
+	if len(p.Email) > 0 {
+		m["email"] = p.Email
+	}
+	if len(p.Password) > 0 {
+		encpw, err := bcrypt.GenerateFromPassword([]byte(p.Password), bcryptCost)
+		if err != nil {
+			return nil
+		}
+		m["EncryptedPassword"] = string(encpw)
 	}
 	return m
 }

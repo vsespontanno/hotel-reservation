@@ -1,7 +1,6 @@
-package middleware
+package api
 
 import (
-	"fmt"
 	"hotel-reservation/types"
 
 	"github.com/gofiber/fiber/v2"
@@ -10,10 +9,10 @@ import (
 func AdminAuth(c *fiber.Ctx) error {
 	user, ok := c.Context().UserValue("user").(*types.User)
 	if !ok {
-		return fmt.Errorf("user not logged in")
+		return ErrUnAuthorized()
 	}
 	if !user.IsAdmin {
-		return fmt.Errorf("user is not admin")
+		return ErrUnAuthorized()
 	}
 	return c.Next()
 }
